@@ -1,5 +1,6 @@
 package com.galactireborn;
 
+import com.galactireborn.inventory.SpaceInventoryCapability;
 import com.galactireborn.items.OxygenTank;
 import com.mojang.logging.LogUtils;
 import net.minecraft.world.item.CreativeModeTab;
@@ -30,19 +31,15 @@ public class GalactiReborn
     public static final DeferredRegister<Item> ITEMS =
             DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
 
-    // Tanque de oxigeno pequeno (300 unidades)
+    // Tanques de oxigeno
     public static final RegistryObject<Item> OXYGEN_TANK_SMALL =
             ITEMS.register("oxygen_tank_small", () -> new OxygenTank(300));
-
-    // Tanque de oxigeno mediano (600 unidades)
     public static final RegistryObject<Item> OXYGEN_TANK_MEDIUM =
             ITEMS.register("oxygen_tank_medium", () -> new OxygenTank(600));
-
-    // Tanque de oxigeno grande (900 unidades)
     public static final RegistryObject<Item> OXYGEN_TANK_LARGE =
             ITEMS.register("oxygen_tank_large", () -> new OxygenTank(900));
 
-    // Tab creativo de GalactiReborn
+    // Tab creativo
     public static final DeferredRegister<CreativeModeTab> TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
@@ -65,6 +62,7 @@ public class GalactiReborn
         ITEMS.register(modEventBus);
         TABS.register(modEventBus);
 
+        // Registrar eventos del mundo (capability, teclas, etc)
         MinecraftForge.EVENT_BUS.register(this);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, GalactiRebornConfig.SPEC);
