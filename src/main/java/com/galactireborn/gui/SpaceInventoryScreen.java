@@ -1,18 +1,17 @@
 package com.galactireborn.gui;
 
 import com.galactireborn.GalactiReborn;
-import com.galactireborn.inventory.SpaceInventory;
 import com.galactireborn.inventory.SpaceInventoryCapability;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class SpaceInventoryScreen extends Screen
 {
-    // Textura de fondo de la GUI
     private static final ResourceLocation TEXTURE = new ResourceLocation(
             GalactiReborn.MODID, "textures/gui/space_inventory.png");
 
@@ -37,62 +36,71 @@ public class SpaceInventoryScreen extends Screen
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
-        // Fondo oscuro detras de la GUI
         this.renderBackground(graphics);
 
-        // Dibujar la textura de fondo
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         graphics.blit(TEXTURE, guiLeft, guiTop, 0, 0, GUI_WIDTH, GUI_HEIGHT);
 
-        // Titulo de la pantalla
-        graphics.drawCenteredString(
-                this.font,
-                Component.translatable("screen.galactireborn.space_inventory"),
-                guiLeft + GUI_WIDTH / 2,
-                guiTop + 6,
-                0xFFFFFF);
-
-        // Mostrar estado de oxigeno del jugador
+        // Modelo del jugador
         var player = Minecraft.getInstance().player;
         if (player != null)
         {
+            InventoryScreen.renderEntityInInventoryFollowsMouse(
+                    graphics,
+                    guiLeft + 31,
+                    guiTop + 72,
+                    30,
+                    0.0625f,
+                    0.0625f,
+                    player);
+
+            // Estado oxigeno y paracaidas (coordenadas Y diferentes)
             player.getCapability(SpaceInventoryCapability.SPACE_INVENTORY)
                     .ifPresent(inv -> {
-                        String status = inv.hasOxygenEquipped()
-                                ? "Oxigeno: ACTIVO"
-                                : "Oxigeno: SIN EQUIPO";
-                        int color = inv.hasOxygenEquipped() ? 0x55FF55 : 0xFF5555;
-                        graphics.drawString(this.font, status,
-                                guiLeft + 8, guiTop + 20, color);
+                        String o2 = inv.hasOxygenEquipped() ? "O2: ON" : "O2: OFF";
+                        int o2c = inv.hasOxygenEquipped() ? 0x55FF55 : 0xFF5555;
+                        graphics.drawString(this.font, o2,
+                                guiLeft + 100, guiTop + 64, o2c);
 
-                        String parachute = inv.hasParachute()
-                                ? "Paracaidas: SI"
-                                : "Paracaidas: NO";
-                        int pColor = inv.hasParachute() ? 0x55FF55 : 0xFF5555;
-                        graphics.drawString(this.font, parachute,
-                                guiLeft + 8, guiTop + 32, pColor);
+                        String para = inv.hasParachute() ? "Chute: YES" : "Chute: NO";
+                        int pc = inv.hasParachute() ? 0x55FF55 : 0xFF5555;
+                        graphics.drawString(this.font, para,
+                                guiLeft + 100, guiTop + 74, pc);
                     });
         }
+
+        // Pestaña de regreso al inventario vanilla
+        graphics.fill(guiLeft - 20, guiTop,
+                guiLeft, guiTop + 20,
+                0xFFC6C6C6);
+        graphics.hLine(guiLeft - 20, guiLeft, guiTop,      0xFF373737);
+        graphics.hLine(guiLeft - 20, guiLeft, guiTop + 19, 0xFF373737);
+        graphics.vLine(guiLeft - 20, guiTop,  guiTop + 20, 0xFF373737);
+        graphics.drawCenteredString(this.font, "E",
+                guiLeft - 10, guiTop + 6, 0xFF000000);
 
         super.render(graphics, mouseX, mouseY, partialTick);
     }
 
-    // Cerrar con Escape o con R
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button)
+    {
+        if (mouseX >= guiLeft - 20 && mouseX <= guiLeft
+                && mouseY >= guiTop && mouseY <= guiTop + 20)
+        {
+            Minecraft.getInstance().setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(Minecraft.getInstance().player));
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers)
     {
-        if (keyCode == 256) // Escape
-        {
-            this.onClose();
-            return true;
-        }
+        if (keyCode == 256) { this.onClose(); return true; }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
-    // No pausa el juego
     @Override
-    public boolean isPauseScreen()
-    {
-        return false;
-    }
+    public boolean isPauseScreen() { return false; }
 }
