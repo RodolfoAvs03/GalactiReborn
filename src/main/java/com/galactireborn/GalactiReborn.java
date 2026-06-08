@@ -2,6 +2,7 @@ package com.galactireborn;
 
 import com.galactireborn.inventory.SpaceInventoryCapability;
 import com.galactireborn.items.OxygenTank;
+import com.galactireborn.inventory.SpaceEquipmentMenu;
 import com.mojang.logging.LogUtils;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -61,8 +62,8 @@ public class GalactiReborn
 
         ITEMS.register(modEventBus);
         TABS.register(modEventBus);
+        SpaceEquipmentMenu.MENUS.register(modEventBus);  // <-- nueva línea
 
-        // Registrar eventos del mundo (capability, teclas, etc)
         MinecraftForge.EVENT_BUS.register(this);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, GalactiRebornConfig.SPEC);
